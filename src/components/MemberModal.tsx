@@ -54,14 +54,6 @@ export const MemberModal: React.FC<MemberModalProps> = ({ member, onClose }) => 
                     className="modal-content w-full max-w-md overflow-hidden"
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Close */}
-                    <button
-                        onClick={onClose}
-                        className="absolute top-5 right-5 w-9 h-9 flex items-center justify-center rounded-lg bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-all text-xl"
-                    >
-                        ×
-                    </button>
-
                     <div className="p-8">
                         {/* Avatar */}
                         <div className="avatar w-24 h-24 rounded-2xl flex items-center justify-center text-3xl mx-auto">

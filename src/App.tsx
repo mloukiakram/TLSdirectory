@@ -217,7 +217,11 @@ function App() {
                   onClick={() => handleUnitSelect(unit)}
                   className={`unit-item ${selectedUnit?.id === unit.id ? 'active' : ''}`}
                 >
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${selectedUnit?.id === unit.id ? 'bg-white/20' : 'avatar'
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${selectedUnit?.id === unit.id
+                      ? 'bg-white/20'
+                      : (unit.name.toUpperCase().startsWith('GM') || unit.name === 'EIN CONSULTING' || unit.name === 'GMA'
+                        ? 'avatar'
+                        : 'avatar-subtle')
                     }`}>
                     {unit.name.substring(0, 2).toUpperCase()}
                   </div>
@@ -253,17 +257,25 @@ function App() {
                 {/* Header */}
                 <div className="mb-6 md:mb-10">
                   <div className="unit-header flex items-center gap-4 md:gap-6">
-                    <div className="avatar w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-xl md:text-2xl">
+                    <div className={`w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-xl md:text-2xl font-bold ${selectedUnit.name.toUpperCase().startsWith('GM') || selectedUnit.name === 'EIN CONSULTING' || selectedUnit.name === 'GMA'
+                      ? 'avatar'
+                      : 'avatar-subtle'
+                      }`}>
                       {selectedUnit.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <h1 className="heading-xl">{selectedUnit.name}</h1>
                       {selectedUnit.supervisor && (
                         <p
-                          className="text-[var(--text-tertiary)] mt-1 md:mt-2 cursor-pointer hover:text-[var(--text-secondary)] transition-colors text-sm md:text-base"
-                          onClick={() => setSelectedMember(selectedUnit.supervisor!)}
+                          className="text-[var(--text-tertiary)] mt-1 md:mt-2 text-sm md:text-base"
                         >
-                          Supervised by <span className="text-[var(--text-primary)] font-medium">{selectedUnit.supervisor.name}</span>
+                          Supervised by{' '}
+                          <span
+                            className="text-[var(--text-primary)] font-medium underline decoration-[var(--text-quaternary)] underline-offset-2 cursor-pointer hover:decoration-[var(--text-primary)] transition-all"
+                            onClick={() => setSelectedMember(selectedUnit.supervisor!)}
+                          >
+                            {selectedUnit.supervisor.name}
+                          </span>
                         </p>
                       )}
                     </div>
