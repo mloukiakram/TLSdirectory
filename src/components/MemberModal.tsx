@@ -6,10 +6,29 @@ interface MemberModalProps {
     onClose: () => void;
 }
 
+// Derive role for display
+const getDisplayRole = (member: Member): string => {
+    // If they have a specific role, use it
+    if (member.role) {
+        return member.role;
+    }
+
+    // For EIN/IT unit, derive role from team name
+    if (member.unitName === 'EIN CONSULTING') {
+        if (member.teamName?.toLowerCase().includes('support')) return 'Support';
+        if (member.teamName?.toLowerCase().includes('reporting')) return 'Reporting';
+        if (member.teamName?.toLowerCase().includes('development')) return 'Development';
+    }
+
+    // Default role for everyone else is Mailer
+    return 'Mailer';
+};
+
 export const MemberModal: React.FC<MemberModalProps> = ({ member, onClose }) => {
     if (!member) return null;
 
     const initials = member.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+    const displayRole = getDisplayRole(member);
 
     const handleTelegram = () => {
         if (member.telegram) {
@@ -54,14 +73,12 @@ export const MemberModal: React.FC<MemberModalProps> = ({ member, onClose }) => 
                             {member.name}
                         </h2>
 
-                        {/* Role */}
-                        {member.role && (
-                            <div className="text-center mt-3">
-                                <span className="badge-dark px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider">
-                                    {member.role}
-                                </span>
-                            </div>
-                        )}
+                        {/* Role Badge */}
+                        <div className="text-center mt-3">
+                            <span className="badge-dark px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider">
+                                {displayRole}
+                            </span>
+                        </div>
                     </div>
 
                     {/* Info Cards */}
@@ -79,18 +96,16 @@ export const MemberModal: React.FC<MemberModalProps> = ({ member, onClose }) => 
                             </div>
                         )}
 
-                        {/* Team */}
-                        {member.teamName && (
-                            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
-                                <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] text-lg">
-                                    ≡
-                                </div>
-                                <div>
-                                    <p className="text-[10px] text-[var(--text-quaternary)] uppercase tracking-widest font-bold">Team</p>
-                                    <p className="text-sm text-[var(--text-primary)] font-medium">{member.teamName}</p>
-                                </div>
+                        {/* Role */}
+                        <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                            <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] text-lg">
+                                ★
                             </div>
-                        )}
+                            <div>
+                                <p className="text-[10px] text-[var(--text-quaternary)] uppercase tracking-widest font-bold">Role</p>
+                                <p className="text-sm text-[var(--text-primary)] font-medium">{displayRole}</p>
+                            </div>
+                        </div>
 
                         {/* Location */}
                         {member.location && (

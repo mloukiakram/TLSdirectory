@@ -30,7 +30,7 @@ export const companyData: CompanyStructure = {
                             id: "tech-team",
                             name: "Technician",
                             members: [
-                                { name: "Mohamed Alaoui", role: "Tech Lead", telegram: "+212636203456" }
+                                { name: "Mohamed Alaoui", role: "Technician", telegram: "+212636203456" }
                             ]
                         }
                     ]
