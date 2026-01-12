@@ -287,7 +287,12 @@ function App() {
                           initial={{ opacity: 0, y: 12 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: idx * 0.03 }}
-                          onClick={() => setSelectedMember(member)}
+                          onClick={() => setSelectedMember({
+                            ...member,
+                            teamName: selectedTeam.name,
+                            unitName: selectedUnit.name,
+                            location: selectedLocation?.name
+                          })}
                           className="member-card group"
                         >
                           <div className="flex items-start gap-4">

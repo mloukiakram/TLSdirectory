@@ -3,6 +3,8 @@ export interface Member {
     role?: string;
     telegram?: string;
     location?: string;
+    teamName?: string;
+    unitName?: string;
 }
 
 export interface Team {

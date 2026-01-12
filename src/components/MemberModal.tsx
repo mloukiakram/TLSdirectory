@@ -64,8 +64,35 @@ export const MemberModal: React.FC<MemberModalProps> = ({ member, onClose }) => 
                         )}
                     </div>
 
-                    {/* Info */}
+                    {/* Info Cards */}
                     <div className="px-8 pb-8 space-y-3">
+                        {/* Unit */}
+                        {member.unitName && (
+                            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                                <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] text-sm font-bold">
+                                    {member.unitName.substring(0, 2).toUpperCase()}
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-[var(--text-quaternary)] uppercase tracking-widest font-bold">Unit</p>
+                                    <p className="text-sm text-[var(--text-primary)] font-medium">{member.unitName}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Team */}
+                        {member.teamName && (
+                            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
+                                <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] text-lg">
+                                    ≡
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-[var(--text-quaternary)] uppercase tracking-widest font-bold">Team</p>
+                                    <p className="text-sm text-[var(--text-primary)] font-medium">{member.teamName}</p>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Location */}
                         {member.location && (
                             <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
                                 <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] text-lg">
@@ -78,6 +105,7 @@ export const MemberModal: React.FC<MemberModalProps> = ({ member, onClose }) => 
                             </div>
                         )}
 
+                        {/* Telegram */}
                         {member.telegram && (
                             <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--bg-secondary)] border border-[var(--border-subtle)]">
                                 <div className="w-10 h-10 rounded-lg bg-[var(--bg-elevated)] flex items-center justify-center text-[var(--text-secondary)] font-bold">
