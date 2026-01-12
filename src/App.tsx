@@ -5,7 +5,7 @@ import { MapModal } from './components/MapModal';
 import { Spotlight } from './components/Spotlight';
 import { AnimatedCounter } from './components/AnimatedCounter';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Member, Unit, Team, Location } from './types';
+import type { Member, Unit, Team } from './types';
 
 function App() {
   const [selectedLocationId, setSelectedLocationId] = useState<string>('all');
