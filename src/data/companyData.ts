@@ -181,16 +181,26 @@ export const companyData: CompanyStructure = {
                 {
                     id: "gma",
                     name: "GMA",
-                    supervisor: undefined,
+                    // Hatim Lachiri and Ahmed Benjeloun Fahri both lead this unit
                     teams: [
                         {
+                            id: 'gma-leaders',
+                            name: 'Unit Leaders',
+                            members: [
+                                { name: "Hatim Lachiri", role: "Unit Leader", telegram: "@hatimlachiri" },
+                                { name: "Ahmed Benjeloun Fahri", role: "Unit Leader", telegram: "@ahmedbenjeloun" }
+                            ]
+                        },
+                        {
                             id: 'hatim-yahoo',
-                            name: 'Hatim Team - Yahoo',
-                            members: [{ name: "Mohamed Stitou", role: "Lead" }]
+                            name: 'Yahoo Team',
+                            members: [
+                                { name: "Mohamed Stitou", role: "Team Leader" }
+                            ]
                         },
                         {
                             id: 'hatim-spam',
-                            name: 'Hatim Team - Gmail Spam',
+                            name: 'Gmail Spam Team',
                             members: [
                                 { name: "Mehdi Eziyami", role: "Team Leader", telegram: "@mehdiigm" },
                                 { name: "Younes Benkirou" },
@@ -201,7 +211,7 @@ export const companyData: CompanyStructure = {
                         },
                         {
                             id: 'ahmed-others',
-                            name: 'Ahmed Team - Others',
+                            name: 'Others Team',
                             members: [
                                 { name: "Afaf Dahimi" },
                                 { name: "Mohamed Farsani" },
