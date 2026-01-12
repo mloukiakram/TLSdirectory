@@ -370,3 +370,155 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* Mobile menu toggle button */
+.mobile-menu-btn {
+  display: none;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 768px) {
+
+  /* Show mobile menu button */
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Hide desktop nav actions on mobile */
+  .desktop-only {
+    display: none !important;
+  }
+
+  /* Location tabs - scrollable on mobile */
+  .location-tabs-container {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .location-tab {
+    padding: 8px 14px;
+    font-size: 13px;
+  }
+
+  /* Sidebar - slides in from left on mobile */
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 64px;
+    bottom: 0;
+    z-index: 90;
+    width: 300px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+
+  /* Sidebar overlay */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    top: 64px;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 80;
+  }
+
+  .sidebar-overlay.open {
+    display: block;
+  }
+
+  /* Main content full width on mobile */
+  .main-content {
+    width: 100% !important;
+    padding: 20px !important;
+  }
+
+  /* Smaller heading on mobile */
+  .heading-xl {
+    font-size: 28px;
+  }
+
+  .heading-lg {
+    font-size: 22px;
+  }
+
+  /* Member cards - smaller padding on mobile */
+  .member-card {
+    padding: 16px;
+  }
+
+  /* Team tabs - smaller on mobile */
+  .team-tab {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  /* Stats - smaller text */
+  .stat-value {
+    font-size: 22px;
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  /* Modal - full width on mobile */
+  .modal-content {
+    max-width: calc(100% - 32px);
+    margin: 16px;
+  }
+
+  /* Unit header - stack on mobile */
+  .unit-header {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .unit-header .avatar {
+    width: 60px !important;
+    height: 60px !important;
+    font-size: 1.25rem !important;
+  }
+
+  /* Nav - tighter on mobile */
+  .nav>div {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+
+  /* Even smaller on very small screens */
+  .heading-xl {
+    font-size: 24px;
+  }
+
+  .location-tab {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .member-card {
+    padding: 14px;
+  }
+
+  /* Grid to single column */
+  .members-grid {
+    grid-template-columns: 1fr !important;
+  }
+}

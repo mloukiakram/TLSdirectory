@@ -14,6 +14,7 @@ function App() {
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
   const [mapModal, setMapModal] = useState<{ url: string; name: string } | null>(null);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,19 +39,16 @@ function App() {
   // For stats: California only counts GM* units, others count all
   const unitsForStats = useMemo(() => {
     if (selectedLocationId === 'all') {
-      // For "All": count everything from all locations
       return companyData.locations.flatMap(loc => loc.units);
     }
 
     const loc = companyData.locations.find(l => l.id === selectedLocationId);
     if (!loc) return [];
 
-    // Only California filters for GM* units
     if (loc.name.toLowerCase().includes('california')) {
       return loc.units.filter(u => u.name.toUpperCase().startsWith('GM'));
     }
 
-    // All other locations: count all units
     return loc.units;
   }, [selectedLocationId]);
 
@@ -71,6 +69,7 @@ function App() {
   const handleUnitSelect = (unit: Unit) => {
     setSelectedUnit(unit);
     setSelectedTeam(unit.teams[0] || null);
+    setSidebarOpen(false); // Close sidebar on mobile after selecting
   };
 
   const selectedLocation = companyData.locations.find(l => l.id === selectedLocationId);
@@ -79,9 +78,15 @@ function App() {
     <div className="h-screen flex flex-col overflow-hidden">
       {/* Navigation */}
       <nav className="nav shrink-0">
-        <div className="max-w-[1800px] mx-auto px-6 lg:px-10 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <div className="flex items-center gap-4">
+        <div className="max-w-[1800px] mx-auto px-4 md:px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
+          {/* Mobile Menu Button + Logo */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="mobile-menu-btn w-10 h-10"
+            >
+              <span className="text-lg">{sidebarOpen ? '×' : '☰'}</span>
+            </button>
             <img src="/logo.png" alt="Traffic Loop" className="w-10 h-10 rounded-xl object-cover" />
             <div className="hidden sm:block">
               <h1 className="text-base font-semibold text-[var(--text-primary)]">Traffic Loop</h1>
@@ -89,41 +94,49 @@ function App() {
             </div>
           </div>
 
-          {/* Location Tabs with ALL */}
-          <div className="flex items-center gap-1 bg-[var(--bg-tertiary)] rounded-full p-1.5">
-            <button
-              onClick={() => handleLocationSelect('all')}
-              className={`location-tab ${selectedLocationId === 'all' ? 'active' : ''}`}
-            >
-              All
-            </button>
-            {companyData.locations.map((loc) => (
+          {/* Location Tabs with ALL - scrollable on mobile */}
+          <div className="location-tabs-container flex-1 flex justify-center overflow-x-auto no-scrollbar">
+            <div className="flex items-center gap-1 bg-[var(--bg-tertiary)] rounded-full p-1.5">
               <button
-                key={loc.id}
-                onClick={() => handleLocationSelect(loc.id)}
-                className={`location-tab ${selectedLocationId === loc.id ? 'active' : ''}`}
+                onClick={() => handleLocationSelect('all')}
+                className={`location-tab ${selectedLocationId === 'all' ? 'active' : ''}`}
               >
-                {selectedLocationId === loc.id
-                  ? loc.name
-                  : (loc.name.length > 16 ? loc.name.substring(0, 14) + '...' : loc.name)
-                }
+                All
               </button>
-            ))}
+              {companyData.locations.map((loc) => (
+                <button
+                  key={loc.id}
+                  onClick={() => handleLocationSelect(loc.id)}
+                  className={`location-tab ${selectedLocationId === loc.id ? 'active' : ''}`}
+                >
+                  <span className="hidden md:inline">
+                    {selectedLocationId === loc.id
+                      ? loc.name
+                      : (loc.name.length > 16 ? loc.name.substring(0, 14) + '...' : loc.name)
+                    }
+                  </span>
+                  <span className="md:hidden">
+                    {loc.name.length > 10 ? loc.name.substring(0, 8) + '...' : loc.name}
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 md:gap-3">
             <button
               onClick={() => setSpotlightOpen(true)}
-              className="btn-secondary flex items-center gap-3"
+              className="btn-secondary flex items-center gap-2 md:gap-3"
             >
-              <span className="text-sm">Search</span>
-              <kbd className="text-[11px] text-[var(--text-quaternary)] px-2 py-0.5 bg-[var(--bg-elevated)] rounded text-mono">⌘K</kbd>
+              <span className="text-sm hidden md:inline">Search</span>
+              <span className="md:hidden">⌕</span>
+              <kbd className="text-[11px] text-[var(--text-quaternary)] px-2 py-0.5 bg-[var(--bg-elevated)] rounded text-mono hidden md:inline">⌘K</kbd>
             </button>
             {selectedLocation?.mapUrl && (
               <button
                 onClick={() => setMapModal({ url: selectedLocation.mapUrl!, name: selectedLocation.name })}
-                className="btn-secondary"
+                className="btn-secondary desktop-only"
               >
                 Map
               </button>
@@ -132,11 +145,17 @@ function App() {
         </div>
       </nav>
 
+      {/* Mobile Sidebar Overlay */}
+      <div
+        className={`sidebar-overlay ${sidebarOpen ? 'open' : ''}`}
+        onClick={() => setSidebarOpen(false)}
+      />
+
       {/* Main Layout - Fixed height, no page scroll */}
       <div className="flex-1 flex min-h-0">
-        {/* Sidebar - Scrollable independently */}
-        <aside className="sidebar w-80 shrink-0 flex flex-col min-h-0">
-          {/* Leadership - PINNED ON TOP (not scrollable) */}
+        {/* Sidebar - Scrollable independently, slides on mobile */}
+        <aside className={`sidebar w-80 shrink-0 flex flex-col min-h-0 ${sidebarOpen ? 'open' : ''}`}>
+          {/* Leadership - PINNED ON TOP */}
           {companyData.executives.length > 0 && (
             <div className="leadership-section shrink-0">
               <p className="text-[11px] font-bold text-[var(--text-quaternary)] uppercase tracking-widest mb-3">
@@ -149,7 +168,7 @@ function App() {
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: idx * 0.05 }}
-                    onClick={() => setSelectedMember(exec)}
+                    onClick={() => { setSelectedMember(exec); setSidebarOpen(false); }}
                     className="leadership-item"
                   >
                     <div className="avatar w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold">
@@ -166,7 +185,7 @@ function App() {
           )}
 
           {/* Stats */}
-          <div className="p-5 grid grid-cols-3 gap-3 shrink-0">
+          <div className="p-4 md:p-5 grid grid-cols-3 gap-2 md:gap-3 shrink-0">
             <div className="stat-card">
               <div className="stat-value"><AnimatedCounter value={stats.totalUnits} /></div>
               <div className="stat-label">Units</div>
@@ -181,11 +200,11 @@ function App() {
             </div>
           </div>
 
-          <div className="divider mx-5 shrink-0" />
+          <div className="divider mx-4 md:mx-5 shrink-0" />
 
           {/* Units - SCROLLABLE SECTION */}
-          <div className="flex-1 overflow-y-auto p-4 min-h-0">
-            <p className="text-[11px] font-bold text-[var(--text-quaternary)] uppercase tracking-widest px-4 mb-3">
+          <div className="flex-1 overflow-y-auto p-3 md:p-4 min-h-0">
+            <p className="text-[11px] font-bold text-[var(--text-quaternary)] uppercase tracking-widest px-3 md:px-4 mb-3">
               Units
             </p>
             <div className="space-y-1">
@@ -221,7 +240,7 @@ function App() {
         </aside>
 
         {/* Main Content - Scrollable independently */}
-        <main className="flex-1 p-8 lg:p-10 overflow-y-auto bg-[var(--bg-primary)] min-h-0">
+        <main className="main-content flex-1 p-4 md:p-8 lg:p-10 overflow-y-auto bg-[var(--bg-primary)] min-h-0">
           <AnimatePresence mode="wait">
             {selectedUnit ? (
               <motion.div
@@ -232,16 +251,16 @@ function App() {
                 transition={{ duration: 0.2 }}
               >
                 {/* Header */}
-                <div className="mb-10">
-                  <div className="flex items-center gap-6">
-                    <div className="avatar w-20 h-20 rounded-2xl flex items-center justify-center text-2xl">
+                <div className="mb-6 md:mb-10">
+                  <div className="unit-header flex items-center gap-4 md:gap-6">
+                    <div className="avatar w-16 h-16 md:w-20 md:h-20 rounded-2xl flex items-center justify-center text-xl md:text-2xl">
                       {selectedUnit.name.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <h1 className="heading-xl">{selectedUnit.name}</h1>
                       {selectedUnit.supervisor && (
                         <p
-                          className="text-[var(--text-tertiary)] mt-2 cursor-pointer hover:text-[var(--text-secondary)] transition-colors text-base"
+                          className="text-[var(--text-tertiary)] mt-1 md:mt-2 cursor-pointer hover:text-[var(--text-secondary)] transition-colors text-sm md:text-base"
                           onClick={() => setSelectedMember(selectedUnit.supervisor!)}
                         >
                           Supervised by <span className="text-[var(--text-primary)] font-medium">{selectedUnit.supervisor.name}</span>
@@ -252,7 +271,7 @@ function App() {
                 </div>
 
                 {/* Team Tabs */}
-                <div className="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
+                <div className="flex gap-2 md:gap-3 mb-6 md:mb-8 overflow-x-auto no-scrollbar pb-2">
                   {selectedUnit.teams.map((team, idx) => (
                     <motion.button
                       key={team.id}
@@ -260,7 +279,7 @@ function App() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: idx * 0.04 }}
                       onClick={() => setSelectedTeam(team)}
-                      className={`team-tab flex items-center gap-3 ${selectedTeam?.id === team.id ? 'active' : ''}`}
+                      className={`team-tab flex items-center gap-2 md:gap-3 ${selectedTeam?.id === team.id ? 'active' : ''}`}
                     >
                       {team.name}
                       <span className={`text-xs px-2 py-0.5 rounded-md font-semibold ${selectedTeam?.id === team.id ? 'bg-white/20' : 'bg-[var(--bg-elevated)]'
@@ -279,7 +298,7 @@ function App() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
-                      className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4"
+                      className="members-grid grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4"
                     >
                       {selectedTeam.members.map((member, idx) => (
                         <motion.div
@@ -295,22 +314,22 @@ function App() {
                           })}
                           className="member-card group"
                         >
-                          <div className="flex items-start gap-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 ${member.role?.toLowerCase().includes('lead') ? 'avatar' : 'avatar-subtle'
+                          <div className="flex items-start gap-3 md:gap-4">
+                            <div className={`w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center text-xs md:text-sm font-bold shrink-0 ${member.role?.toLowerCase().includes('lead') ? 'avatar' : 'avatar-subtle'
                               }`}>
                               {member.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <h4 className="text-base font-semibold text-[var(--text-primary)] truncate">
+                              <h4 className="text-sm md:text-base font-semibold text-[var(--text-primary)] truncate">
                                 {member.name}
                               </h4>
                               {member.role && (
-                                <span className="badge-dark text-[10px] font-bold uppercase tracking-wider inline-block mt-2">
+                                <span className="badge-dark text-[9px] md:text-[10px] font-bold uppercase tracking-wider inline-block mt-1.5 md:mt-2">
                                   {member.role}
                                 </span>
                               )}
                               {member.telegram && (
-                                <p className="text-xs text-[var(--text-quaternary)] mt-2 truncate text-mono">{member.telegram}</p>
+                                <p className="text-[11px] md:text-xs text-[var(--text-quaternary)] mt-1.5 md:mt-2 truncate text-mono">{member.telegram}</p>
                               )}
                             </div>
                           </div>
@@ -326,18 +345,18 @@ function App() {
                 animate={{ opacity: 1 }}
                 className="h-full flex items-center justify-center"
               >
-                <div className="text-center max-w-md">
-                  <img src="/logo.png" alt="Traffic Loop" className="w-20 h-20 rounded-2xl object-cover mx-auto mb-8" />
-                  <h2 className="heading-lg mb-4">Welcome to Traffic Loop</h2>
-                  <p className="text-[var(--text-tertiary)] mb-8 text-base leading-relaxed">
+                <div className="text-center max-w-md px-4">
+                  <img src="/logo.png" alt="Traffic Loop" className="w-16 h-16 md:w-20 md:h-20 rounded-2xl object-cover mx-auto mb-6 md:mb-8" />
+                  <h2 className="heading-lg mb-3 md:mb-4">Welcome to Traffic Loop</h2>
+                  <p className="text-[var(--text-tertiary)] mb-6 md:mb-8 text-sm md:text-base leading-relaxed">
                     Select a unit from the sidebar to explore teams and members.
                   </p>
                   <button
                     onClick={() => setSpotlightOpen(true)}
-                    className="btn-primary inline-flex items-center gap-3"
+                    className="btn-primary inline-flex items-center gap-3 text-sm md:text-base"
                   >
                     Quick Search
-                    <kbd className="text-xs opacity-60 text-mono">⌘K</kbd>
+                    <kbd className="text-xs opacity-60 text-mono hidden md:inline">⌘K</kbd>
                   </button>
                 </div>
               </motion.div>
