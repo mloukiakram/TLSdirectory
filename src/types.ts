@@ -30,3 +30,6 @@ export interface CompanyStructure {
     executives: Member[];
     locations: LocationSection[];
 }
+
+// Alias for convenience
+export type Location = LocationSection;
