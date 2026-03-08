@@ -1,13 +1,17 @@
-import { useState, useMemo, useEffect } from 'react';
-import { companyData } from './data/companyData';
+import { useState, useMemo, useEffect, useCallback } from 'react';
+import { fetchCompanyData } from './lib/dataService';
+import { seedDatabase } from './data/seedData';
 import { MemberModal } from './components/MemberModal';
 import { MapModal } from './components/MapModal';
 import { Spotlight } from './components/Spotlight';
 import { AnimatedCounter } from './components/AnimatedCounter';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Member, Unit, Team } from './types';
+import type { Member, Unit, Team, CompanyStructure } from './types';
 
 function App() {
+  const [companyData, setCompanyData] = useState<CompanyStructure>({ executives: [], locations: [] });
+  const [dataLoading, setDataLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
   const [selectedLocationId, setSelectedLocationId] = useState<string>('all');
   const [selectedUnit, setSelectedUnit] = useState<Unit | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
@@ -15,6 +19,19 @@ function App() {
   const [mapModal, setMapModal] = useState<{ url: string; name: string } | null>(null);
   const [spotlightOpen, setSpotlightOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setDataLoading(true);
+    try {
+      const data = await fetchCompanyData();
+      setCompanyData(data);
+    } catch (err) {
+      console.error('Failed to load data:', err);
+    }
+    setDataLoading(false);
+  }, []);
+
+  useEffect(() => { loadData(); }, [loadData]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,6 +44,14 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleSeed = async () => {
+    if (!confirm('This will populate the database with the default company data. Continue?')) return;
+    setSeeding(true);
+    await seedDatabase();
+    await loadData();
+    setSeeding(false);
+  };
+
   // Get all units based on selection
   const allUnits = useMemo(() => {
     if (selectedLocationId === 'all') {
@@ -34,7 +59,7 @@ function App() {
     }
     const loc = companyData.locations.find(l => l.id === selectedLocationId);
     return loc ? loc.units : [];
-  }, [selectedLocationId]);
+  }, [selectedLocationId, companyData]);
 
   // For stats: California only counts GM* units, others count all
   const unitsForStats = useMemo(() => {
@@ -50,7 +75,7 @@ function App() {
     }
 
     return loc.units;
-  }, [selectedLocationId]);
+  }, [selectedLocationId, companyData]);
 
   const stats = useMemo(() => {
     const totalUnits = unitsForStats.length;
@@ -73,6 +98,35 @@ function App() {
   };
 
   const selectedLocation = companyData.locations.find(l => l.id === selectedLocationId);
+
+  if (dataLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-4xl mb-4" style={{ fontWeight: 700 }}>...</div>
+          <p className="text-[var(--text-tertiary)]">Loading directory...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show seed button if DB is empty
+  if (companyData.locations.length === 0 && companyData.executives.length === 0) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="text-center max-w-md px-4">
+          <div className="text-3xl mb-4" style={{ fontWeight: 700 }}>TLS</div>
+          <h2 className="heading-lg mb-3">Database is Empty</h2>
+          <p className="text-[var(--text-tertiary)] mb-6">
+            Click below to populate the database with the company directory data.
+          </p>
+          <button onClick={handleSeed} className="btn-primary" disabled={seeding}>
+            {seeding ? 'Seeding database...' : 'Seed Database'}
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -218,10 +272,10 @@ function App() {
                   className={`unit-item ${selectedUnit?.id === unit.id ? 'active' : ''}`}
                 >
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 ${selectedUnit?.id === unit.id
-                      ? 'bg-white/20'
-                      : (unit.name.toUpperCase().startsWith('GM') || unit.name === 'EIN CONSULTING' || unit.name === 'GMA'
-                        ? 'avatar'
-                        : 'avatar-subtle')
+                    ? 'bg-white/20'
+                    : (unit.name.toUpperCase().startsWith('GM') || unit.name === 'EIN CONSULTING' || unit.name === 'GMA'
+                      ? 'avatar'
+                      : 'avatar-subtle')
                     }`}>
                     {unit.name.substring(0, 2).toUpperCase()}
                   </div>
@@ -377,7 +431,7 @@ function App() {
         </main>
       </div>
 
-      <Spotlight isOpen={spotlightOpen} onClose={() => setSpotlightOpen(false)} onSelectMember={setSelectedMember} />
+      <Spotlight isOpen={spotlightOpen} onClose={() => setSpotlightOpen(false)} onSelectMember={setSelectedMember} companyData={companyData} />
       {selectedMember && <MemberModal member={selectedMember} onClose={() => setSelectedMember(null)} />}
       {mapModal && <MapModal mapUrl={mapModal.url} locationName={mapModal.name} onClose={() => setMapModal(null)} />}
     </div>

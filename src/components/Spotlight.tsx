@@ -1,15 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import type { Member } from '../types';
-import { companyData } from '../data/companyData';
+import type { Member, CompanyStructure } from '../types';
 
 interface SpotlightProps {
     isOpen: boolean;
     onClose: () => void;
     onSelectMember: (member: Member) => void;
+    companyData: CompanyStructure;
 }
 
-export const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onSelectMember }) => {
+export const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onSelectMember, companyData }) => {
     const [query, setQuery] = useState('');
     const [selectedIndex, setSelectedIndex] = useState(0);
     const inputRef = useRef<HTMLInputElement>(null);
@@ -108,8 +108,8 @@ export const Spotlight: React.FC<SpotlightProps> = ({ isOpen, onClose, onSelectM
                                         transition={{ delay: idx * 0.02 }}
                                         onClick={() => { onSelectMember(member); onClose(); }}
                                         className={`flex items-center gap-4 px-4 py-4 rounded-xl cursor-pointer transition-all ${selectedIndex === idx
-                                                ? 'bg-[var(--accent)] text-white'
-                                                : 'hover:bg-[var(--bg-secondary)]'
+                                            ? 'bg-[var(--accent)] text-white'
+                                            : 'hover:bg-[var(--bg-secondary)]'
                                             }`}
                                     >
                                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold ${selectedIndex === idx ? 'bg-white/20' : 'avatar'
